@@ -1,0 +1,10 @@
+# Secrets - never commit these
+.env
+*.env
+
+# Backup files
+*.bak
+*.bk
+
+# Docker data volumes (if ever stored locally)
+data/
