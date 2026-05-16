@@ -1,10 +1,16 @@
-# Secrets - never commit these
+# .gitignore — Tells Git which files to exclude from version control
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+# The .env file contains passwords and must never be committed.
+# Use .env.example as a safe template instead.
 .env
 *.env
 
-# Backup files
+# ── Backup files ──────────────────────────────────────────────────────────────
+# Editor and manual backup files have no place in the repository.
 *.bak
 *.bk
 
-# Docker data volumes (if ever stored locally)
+# ── Docker data volumes ───────────────────────────────────────────────────────
+# If you ever switch to a local ./data volume, exclude it from Git.
 data/

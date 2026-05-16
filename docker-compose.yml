@@ -1,33 +1,46 @@
 services:
   cinnamon-vnc:
     build:
-      context: .
+      context: .          # Build from the current directory
       dockerfile: Dockerfile
       args:
-        USER: user
+        USER: user        # Username created inside the container
 
     container_name: cinnamon-vnc
 
     ports:
+      # Bind VNC to BIND_IP from .env (defaults to 127.0.0.1 if not set).
+      # Set BIND_IP to your LAN IP (e.g. 192.168.1.x) to allow network access.
+      # Format: HOST_IP:HOST_PORT:CONTAINER_PORT
       - "${BIND_IP:-127.0.0.1}:5901:5901"
-# Commented out so as to prevent noVNC connections
-#      - "6080:6080" 
+      # noVNC browser access is disabled to reduce attack surface.
+      # Uncomment the line below to re-enable it.
+      #      - "6080:6080"
 
     volumes:
-#      - ./data:/data
-# The home folder makes user settings persistant. Using /opt/docker-data and not the same folder as the docker compose file is in because of permission issues particular to my machine.
-       - /opt/docker-data/cinnamon:/data
-       - /opt/docker-data/home:/home/user
+      # Persistent shared data volume — accessible on the desktop via ~/Desktop/SharedFiles
+      # Using /opt/docker-data rather than the project folder avoids permission issues.
+      - /opt/docker-data/cinnamon:/data
+      # Persist the user's home directory across container restarts so settings are retained.
+      - /opt/docker-data/home:/home/user
+      # Uncomment to use a local ./data folder instead of /opt/docker-data/cinnamon:
+      #      - ./data:/data
 
     environment:
+      # VNC password is read from the .env file — never hardcode it here.
+      # See .env.example for setup instructions.
       - VNC_PASSWORD=${VNC_PASSWORD}
 
+    # Automatically restart the container unless explicitly stopped.
     restart: unless-stopped
 
+    # Resource limits — adjust to suit your host machine.
     cpus: 2
     mem_limit: 8g
 
     cap_add:
+      # SYS_ADMIN is required by some desktop/dbus operations inside the container.
       - SYS_ADMIN
     security_opt:
+      # Disabling seccomp allows the full range of system calls needed by the desktop.
       - seccomp:unconfined
